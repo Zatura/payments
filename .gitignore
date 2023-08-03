@@ -4,3 +4,4 @@
 *.xml
 *.iml
 Pipfile.lock
+.idea
