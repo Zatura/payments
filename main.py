@@ -187,25 +187,27 @@ class MiniVenmo:
         bobby.add_friend(carol)
 
 
-def mock_uuid(): return "fake-uuid"
-
-
 class TestUser(unittest.TestCase):
 
     def test_this_works(self):
         with self.assertRaises(UsernameException):
             raise UsernameException()
 
-    @patch('uuid.uuid4', mock_uuid)
     def test_create_user(self):
-        old_user = User(username="userA")
-        old_user.credit_card_number = "4111111111111119"
+        username = "userA"
+        balance = 100.1
+        credit_card = "4111111111111119"
+
+        old_user = User(username)
+        old_user.credit_card_number = credit_card
         old_user.balance = 100.1
 
-        new_user: User = MiniVenmo.create_user(username="userA", balance=100.1, credit_card_number="4111111111111119")
+        new_user: User = MiniVenmo.create_user(username=username, balance=balance, credit_card_number=credit_card)
 
         self.assertIsInstance(new_user, User)
-        self.assertEqual(new_user, old_user)
+        self.assertEqual(new_user.username, username)
+        self.assertEqual(new_user.balance, balance)
+        self.assertEqual(new_user.credit_card_number, credit_card)
 
     def test_pay_with_balance(self):
         """
