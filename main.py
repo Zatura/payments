@@ -1,6 +1,7 @@
 import re
 import unittest
 import uuid
+from unittest.mock import patch
 
 """
 Questions:
@@ -43,9 +44,11 @@ class CreditCardException(Exception):
 
 class User:
     def __init__(self, username: str):
+        self.id = str(uuid.uuid4())
         self.credit_card_number = None
         self.balance = 0.0
         self.feed = []
+        self.friends: dict[uuid.UUID, User] = {}
 
         if self._is_valid_username(username):
             self.username = username
@@ -58,15 +61,23 @@ class User:
     def __eq__(self, other):
         return self.username == other.username and \
             self.credit_card_number == other.credit_card_number and \
-            self.balance == other.balance
+            self.balance == other.balance and \
+            self.id == other.id
+
+    def __hash__(self):
+        return hash((self.username,
+                    self.credit_card_number,
+                    self.balance,
+                    self.id))
+
+
+
 
     def retrieve_feed(self):
-        # TODO: add code here
         return self.feed
 
     def add_friend(self, new_friend):
-        # TODO: add code here
-        pass
+        self.friends[new_friend.id] = new_friend
 
     def add_to_balance(self, amount):
         self.balance += float(amount)
@@ -175,12 +186,16 @@ class MiniVenmo:
         bobby.add_friend(carol)
 
 
+def mock_uuid(): return "fake-uuid"
+
+
 class TestUser(unittest.TestCase):
 
     def test_this_works(self):
         with self.assertRaises(UsernameException):
             raise UsernameException()
 
+    @patch('uuid.uuid4', mock_uuid)
     def test_create_user(self):
         old_user = User(username="userA")
         old_user.credit_card_number = "4111111111111119"
@@ -188,6 +203,7 @@ class TestUser(unittest.TestCase):
 
         new_user: User = MiniVenmo.create_user(username="userA", balance=100.1, credit_card_number="4111111111111119")
 
+        self.assertIsInstance(new_user, User)
         self.assertEqual(new_user, old_user)
 
     def test_pay_with_balance(self):
@@ -232,6 +248,14 @@ class TestUser(unittest.TestCase):
 
         self.assertEquals("Alice paid Bobby $20.00 for Coffee",  alice.retrieve_feed()[0])
         self.assertEquals("Bobby paid Alice $30.00 for Sandwich", alice.retrieve_feed()[1])
+
+    def test_add_friend(self):
+        alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
+        bobby = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
+
+        alice.add_friend(bobby)
+
+        self.assertIn(bobby, alice.friends.values())
 
 
 if __name__ == '__main__':
