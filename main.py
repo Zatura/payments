@@ -227,8 +227,8 @@ class TestUser(unittest.TestCase):
         alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
         bobby = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
 
-        payment1 = alice.pay(bobby, 20, "Coffee")
-        payment2 = bobby.pay(alice, 30, "Sandwich")
+        alice.pay(bobby, 20, "Coffee")
+        bobby.pay(alice, 30, "Sandwich")
 
         self.assertEquals("Alice paid Bobby $20.00 for Coffee",  alice.retrieve_feed()[0])
         self.assertEquals("Bobby paid Alice $30.00 for Sandwich", alice.retrieve_feed()[1])
