@@ -259,13 +259,6 @@ class TestUser(unittest.TestCase):
         self.assertIn(bobby, alice.friends.values())
 
     def test_retrieve_feed_after_friend_added(self):
-        """
-        3. Venmo has the Feed functionality, that shows the payments that users have been doing in the app.
-        If Bobby paid Carol $5, and then Carol paid Bobby $15, it should look something like this
-
-            Bobby paid Carol $5.00 for Coffee
-            Carol paid Bobby $15.00 for Lunch
-        """
         alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
         bobby = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
 
