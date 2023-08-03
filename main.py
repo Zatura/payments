@@ -270,6 +270,12 @@ class TestUser(unittest.TestCase):
         self.assertEqual("Alice added Bobby as friend", bobby.retrieve_feed()[0])
         self.assertEqual("Bobby added Alice as friend", alice.retrieve_feed()[1])
 
+    def test_raises_payment_exception_when_payment_to_self(self):
+        alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
+        alice.pay(alice, 20, "Coffee")
+
+        self.assertRaises(PaymentException)
+
 
 if __name__ == '__main__':
     unittest.main()
