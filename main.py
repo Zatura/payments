@@ -85,8 +85,11 @@ class User:
         if user A is paying user B, user's A balance should be used if there's enough balance to cover the whole payment
         if not, user's A credit card should be charged instead.
         """
-        self.balance -= amount
-        target.balance += amount
+        amount = float(amount)
+        if amount < self.balance:
+            self.pay_with_balance(target, amount, note)
+        else:
+            self.pay_with_card(target, amount, note)
 
     def pay_with_card(self, target, amount, note):
         amount = float(amount)
@@ -107,8 +110,8 @@ class User:
         return payment
 
     def pay_with_balance(self, target, amount, note):
-        # TODO: add code here
-        pass
+        self.balance -= amount
+        target.balance += amount
 
     def _is_valid_credit_card(self, credit_card_number):
         return credit_card_number in ["4111111111111111", "4242424242424242"]
@@ -199,9 +202,14 @@ class TestUser(unittest.TestCase):
     def test_pay_with_creditcard(self):
         """
         if not, user's A credit card should be charged instead.
-        :return:
         """
-        self.fail()
+        alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
+        bob = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
+
+        alice.pay(bob, 105, "")
+
+        self.assertEqual(alice.balance, 100)
+        self.assertEqual(bob.balance, 305)
 
 
 if __name__ == '__main__':
