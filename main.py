@@ -45,6 +45,7 @@ class User:
     def __init__(self, username: str):
         self.credit_card_number = None
         self.balance = 0.0
+        self.feed = []
 
         if self._is_valid_username(username):
             self.username = username
@@ -61,7 +62,7 @@ class User:
 
     def retrieve_feed(self):
         # TODO: add code here
-        return []
+        return self.feed
 
     def add_friend(self, new_friend):
         # TODO: add code here
@@ -87,9 +88,12 @@ class User:
         """
         amount = float(amount)
         if amount < self.balance:
-            return self.pay_with_balance(target, amount, note)
+            payment = self.pay_with_balance(target, amount, note)
         else:
-            return self.pay_with_card(target, amount, note)
+            payment = self.pay_with_card(target, amount, note)
+        self.feed.append(f"{self.username} paid {target.username} ${amount:.2f} for {note}")
+        target.feed.append(f"{self.username} paid {target.username} ${amount:.2f} for {note}")
+        return payment
 
     def pay_with_card(self, target, amount, note):
         amount = float(amount)
@@ -213,6 +217,23 @@ class TestUser(unittest.TestCase):
         self.assertIsInstance(payment, Payment)
         self.assertEqual(alice.balance, 100)
         self.assertEqual(bob.balance, 305)
+
+    def test_retrieve_feed(self):
+        """
+        3. Venmo has the Feed functionality, that shows the payments that users have been doing in the app.
+        If Bobby paid Carol $5, and then Carol paid Bobby $15, it should look something like this
+
+            Bobby paid Carol $5.00 for Coffee
+            Carol paid Bobby $15.00 for Lunch
+        """
+        alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
+        bobby = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
+
+        payment1 = alice.pay(bobby, 20, "Coffee")
+        payment2 = bobby.pay(alice, 30, "Sandwich")
+
+        self.assertEquals("Alice paid Bobby $20.00 for Coffee",  alice.retrieve_feed()[0])
+        self.assertEquals("Bobby paid Alice $30.00 for Sandwich", alice.retrieve_feed()[1])
 
 
 if __name__ == '__main__':
