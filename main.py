@@ -87,9 +87,9 @@ class User:
         """
         amount = float(amount)
         if amount < self.balance:
-            self.pay_with_balance(target, amount, note)
+            return self.pay_with_balance(target, amount, note)
         else:
-            self.pay_with_card(target, amount, note)
+            return self.pay_with_card(target, amount, note)
 
     def pay_with_card(self, target, amount, note):
         amount = float(amount)
@@ -112,6 +112,7 @@ class User:
     def pay_with_balance(self, target, amount, note):
         self.balance -= amount
         target.balance += amount
+        return Payment(amount, self, target, note)
 
     def _is_valid_credit_card(self, credit_card_number):
         return credit_card_number in ["4111111111111111", "4242424242424242"]
@@ -194,8 +195,9 @@ class TestUser(unittest.TestCase):
         alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
         bob = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
 
-        alice.pay(bob, 50.1, "")
+        payment = alice.pay(bob, 50.1, "")
 
+        self.assertIsInstance(payment, Payment)
         self.assertEqual(alice.balance, 49.9)
         self.assertEqual(bob.balance, 250.1)
 
@@ -206,8 +208,9 @@ class TestUser(unittest.TestCase):
         alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
         bob = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
 
-        alice.pay(bob, 105, "")
+        payment = alice.pay(bob, 105, "")
 
+        self.assertIsInstance(payment, Payment)
         self.assertEqual(alice.balance, 100)
         self.assertEqual(bob.balance, 305)
 
