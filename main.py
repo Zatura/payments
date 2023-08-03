@@ -81,8 +81,12 @@ class User:
             raise CreditCardException('Invalid credit card number.')
 
     def pay(self, target, amount, note):
-        # TODO: add logic to pay with card or balance
-        pass
+        """
+        if user A is paying user B, user's A balance should be used if there's enough balance to cover the whole payment
+        if not, user's A credit card should be charged instead.
+        """
+        self.balance -= amount
+        target.balance += amount
 
     def pay_with_card(self, target, amount, note):
         amount = float(amount)
@@ -179,6 +183,25 @@ class TestUser(unittest.TestCase):
         new_user: User = MiniVenmo.create_user(username="userA", balance=100.1, credit_card_number="4111111111111119")
 
         self.assertEqual(new_user, old_user)
+
+    def test_pay_with_balance(self):
+        """
+        if user A is paying user B, user's A balance should be used if there's enough balance to cover the whole payment
+        """
+        alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
+        bob = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
+
+        alice.pay(bob, 50.1, "")
+
+        self.assertEqual(alice.balance, 49.9)
+        self.assertEqual(bob.balance, 250.1)
+
+    def test_pay_with_creditcard(self):
+        """
+        if not, user's A credit card should be charged instead.
+        :return:
+        """
+        self.fail()
 
 
 if __name__ == '__main__':
