@@ -70,9 +70,6 @@ class User:
                     self.balance,
                     self.id))
 
-
-
-
     def retrieve_feed(self):
         return self.feed
 
@@ -129,10 +126,12 @@ class User:
         target.balance += amount
         return Payment(amount, self, target, note)
 
-    def _is_valid_credit_card(self, credit_card_number):
+    @staticmethod
+    def _is_valid_credit_card(credit_card_number):
         return credit_card_number in ["4111111111111111", "4242424242424242"]
 
-    def _is_valid_username(self, username):
+    @staticmethod
+    def _is_valid_username(username):
         return re.match('^[A-Za-z0-9_\\-]{4,15}$', username)
 
     def _charge_credit_card(self, credit_card_number):
@@ -211,26 +210,26 @@ class TestUser(unittest.TestCase):
         if user A is paying user B, user's A balance should be used if there's enough balance to cover the whole payment
         """
         alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
-        bob = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
+        bobby = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
 
-        payment = alice.pay(bob, 50.1, "")
+        payment = alice.pay(bobby, 50.1, "")
 
         self.assertIsInstance(payment, Payment)
         self.assertEqual(alice.balance, 49.9)
-        self.assertEqual(bob.balance, 250.1)
+        self.assertEqual(bobby.balance, 250.1)
 
     def test_pay_with_creditcard(self):
         """
         if not, user's A credit card should be charged instead.
         """
         alice = MiniVenmo.create_user(username="Alice", balance=100, credit_card_number="4111111111111119")
-        bob = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
+        bobby = MiniVenmo.create_user(username="Bobby", balance=200, credit_card_number="4999999999999999")
 
-        payment = alice.pay(bob, 105, "")
+        payment = alice.pay(bobby, 105, "")
 
         self.assertIsInstance(payment, Payment)
         self.assertEqual(alice.balance, 100)
-        self.assertEqual(bob.balance, 305)
+        self.assertEqual(bobby.balance, 305)
 
     def test_retrieve_feed(self):
         """
