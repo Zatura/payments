@@ -150,10 +150,8 @@ class MiniVenmo:
 
     @staticmethod
     def render_feed(feed):
-        # Bobby paid Carol $5.00 for Coffee
-        # Carol paid Bobby $15.00 for Lunch
-        # TODO: add code here
-        pass
+        for row in feed:
+            print(row)
 
     @classmethod
     def run(cls):
